@@ -72,7 +72,7 @@ def move_two():
         t=step/n
         x=700+(400-700)*t
         y=100+(500-100)*t
-        draw_character(x,y)
+        draw_character(x, y, 0.04)
     pass
 
 def move_three():
