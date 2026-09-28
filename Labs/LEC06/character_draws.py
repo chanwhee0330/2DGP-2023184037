@@ -67,6 +67,12 @@ def move_one():
 
 def move_two():
     print("two")
+    n = 100
+    for step in range(n+1):
+        t=step/n
+        x=700+(400-700)*t
+        y=100+(500-100)*t
+        draw_character(x,y)
     pass
 
 def move_three():
