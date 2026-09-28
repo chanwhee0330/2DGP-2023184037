@@ -75,7 +75,7 @@ def move_three():
 
 def move_triangle():
     print("TRIANGLE")
-    move_one()
+    #move_one()
     move_two()
     move_three()
     pass
