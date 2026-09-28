@@ -20,7 +20,7 @@ def move_circle():
 def move_top():
     print("top")
     for x in range(50,750,5):
-        draw_character(x,550)
+        draw_character(x, 550, 0.04)
     pass
 
 def draw_character(x, y, frame_delay=0.05):
