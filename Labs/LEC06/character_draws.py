@@ -57,6 +57,12 @@ def move_rectangle():
 
 def move_one():
     print("one")
+    n = 100
+    for step in range(n+1):
+        t = step/n
+        x = 100+(700-100)*t
+        y = 100+(100-100)*t
+        draw_character(x,y)
     pass
 
 def move_two():
