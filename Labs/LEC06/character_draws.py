@@ -14,7 +14,7 @@ def move_circle():
         x =400+200*math.cos(theta)
         y =300+200*math.sin(theta)
 
-        draw_character(x,y)
+        draw_character(x, y)
     pass
     
 def move_top():
@@ -23,11 +23,11 @@ def move_top():
         draw_character(x,550)
     pass
 
-def draw_character(x,y):
+def draw_character(x, y, frame_delay=0.05):
     clear_canvas()
     character.draw(x,y)
     update_canvas()
-    delay(0.05)
+    delay(frame_delay)
 
 def move_right():
     print("right")
