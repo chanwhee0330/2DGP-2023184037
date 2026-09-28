@@ -17,11 +17,31 @@ def move_circle():
         clear_canvas()
         character.draw(x, y)
         update_canvas()
+        delay(0.01)
     pass
     
+def move_top():
+    print("top")
+    pass
+
+def move_right():
+    print("right")
+    pass
+
+def move_bottom():
+    print("bottom")
+    pass
+
+def move_left():
+    print("left")
+    pass
 
 def move_rectangle():
     print("RECTANGLE")  
+    move_top()
+    move_right()
+    move_bottom()
+    move_left()
     pass
 
 def move_triangle():
