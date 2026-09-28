@@ -56,12 +56,15 @@ def move_rectangle():
     pass
 
 def move_one():
+    print("one")
     pass
 
 def move_two():
+    print("two")
     pass
 
 def move_three():
+    print("three")
     pass
 
 def move_triangle():
