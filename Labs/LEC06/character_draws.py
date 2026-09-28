@@ -82,7 +82,7 @@ def move_three():
         t=step/n
         x=400+(100-400)*t
         y=500+(100-500)*t
-        draw_character(x,y)
+        draw_character(x, y, 0.04)
     pass
 
 def move_triangle():
