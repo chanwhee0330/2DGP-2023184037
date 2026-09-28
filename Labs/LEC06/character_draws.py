@@ -14,7 +14,7 @@ def move_circle():
         x =400+200*math.cos(theta)
         y =300+200*math.sin(theta)
 
-        draw_character(x, y)
+        draw_character(x, y, 0.04)
     pass
     
 def move_top():
