@@ -55,13 +55,25 @@ def move_rectangle():
     move_left()
     pass
 
+def move_one():
+    pass
+
+def move_two():
+    pass
+
+def move_three():
+    pass
+
 def move_triangle():
     print("TRIANGLE")
+    move_one()
+    move_two()
+    move_three()
     pass
 
 while True:
     #move_circle()
-    move_rectangle()
+    #move_rectangle()
     move_triangle()
     pass
 
