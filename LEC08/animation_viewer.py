@@ -153,10 +153,15 @@ def main():
         sprite_sheet = load_sprite_sheet()
         animation = ANIMATIONS[0]
         frame_index = 0
+        completed_repeats = 0
         next_change_time = get_time() + animation["seconds_per_frame"]
         while handle_events():
             now = get_time()
             if now >= next_change_time:
+                if frame_index == len(animation["frames"]) - 1:
+                    completed_repeats += 1
+                    if completed_repeats == REPEAT_COUNT:
+                        break
                 frame_index = (frame_index + 1) % len(animation["frames"])
                 next_change_time = now + animation["seconds_per_frame"]
             clear_canvas()
