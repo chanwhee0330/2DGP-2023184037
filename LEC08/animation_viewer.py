@@ -101,6 +101,15 @@ ANIMATIONS = (
 )
 
 
+def draw_frame(sprite_sheet, frame):
+    left, bottom, width, height = frame
+    sprite_sheet.clip_draw(
+        left, bottom, width, height,
+        CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
+        width, height,
+    )
+
+
 def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
