@@ -6,8 +6,16 @@ from pathlib import Path
 from pico2d import *
 
 
+CANVAS_WIDTH = 800
+CANVAS_HEIGHT = 600
+CELL_SIZE = 128
+DRAW_SCALE = 4.0
+REPEAT_COUNT = 5
+PAUSE_SECONDS = 1.0
+
+
 def main():
-    open_canvas(800, 600)
+    open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
         clear_canvas()
         update_canvas()
