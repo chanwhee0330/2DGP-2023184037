@@ -150,9 +150,19 @@ def load_sprite_sheet():
 def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
-        clear_canvas()
-        update_canvas()
-        delay(1.0)
+        sprite_sheet = load_sprite_sheet()
+        animation = ANIMATIONS[0]
+        frame_index = 0
+        next_change_time = get_time() + animation["seconds_per_frame"]
+        while handle_events():
+            now = get_time()
+            if now >= next_change_time:
+                frame_index = (frame_index + 1) % len(animation["frames"])
+                next_change_time = now + animation["seconds_per_frame"]
+            clear_canvas()
+            draw_frame(sprite_sheet, animation["frames"][frame_index])
+            update_canvas()
+            delay(0.01)
     finally:
         close_canvas()
 
