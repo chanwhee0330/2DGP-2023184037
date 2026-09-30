@@ -135,6 +135,18 @@ def handle_events():
     return True
 
 
+def load_sprite_sheet():
+    """한글이 포함된 절대 경로에서도 pico2d가 이미지를 읽도록 한다."""
+    sprite_directory = Path(__file__).resolve().parent
+    previous_directory = Path.cwd()
+
+    try:
+        os.chdir(sprite_directory)
+        return load_image("SamuraiSheet.png")
+    finally:
+        os.chdir(previous_directory)
+
+
 def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
