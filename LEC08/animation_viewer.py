@@ -102,11 +102,23 @@ ANIMATIONS = (
 
 
 def draw_frame(sprite_sheet, frame):
+    """잘라 낸 크기가 달라도 원래 격자 중심을 기준으로 흔들림 없이 그린다."""
     left, bottom, width, height = frame
+
+    cell_left = (left // CELL_SIZE) * CELL_SIZE
+    frame_center_x = left + width / 2
+
+    offset_x = (frame_center_x - (cell_left + CELL_SIZE / 2)) * DRAW_SCALE
+
     sprite_sheet.clip_draw(
-        left, bottom, width, height,
-        CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
-        width * DRAW_SCALE, height * DRAW_SCALE,
+        left,
+        bottom,
+        width,
+        height,
+        CANVAS_WIDTH / 2 + offset_x,
+        CANVAS_HEIGHT / 2,
+        width * DRAW_SCALE,
+        height * DRAW_SCALE,
     )
 
 
