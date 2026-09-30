@@ -170,7 +170,7 @@ def main():
 
             if now >= next_change_time:
                 if is_paused:
-                    animation_index = 0
+                    animation_index = (animation_index + 1) % len(ANIMATIONS)
                     animation = ANIMATIONS[animation_index]
                     frame_index = 0
                     completed_repeats = 0
