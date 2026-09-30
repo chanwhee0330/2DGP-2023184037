@@ -149,21 +149,50 @@ def load_sprite_sheet():
 
 def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+
     try:
         sprite_sheet = load_sprite_sheet()
-        animation = ANIMATIONS[0]
+
+        animation_index = 0
         frame_index = 0
         completed_repeats = 0
-        next_change_time = get_time() + animation["seconds_per_frame"]
-        while handle_events():
+        is_paused = False
+        next_change_time = get_time() + ANIMATIONS[0]["seconds_per_frame"]
+
+        print("Esc 키를 누르거나 창을 닫으면 종료합니다.")
+        print(f"재생: {ANIMATIONS[0]['name']} (1/{len(ANIMATIONS)})")
+
+        running = True
+        while running:
+            running = handle_events()
             now = get_time()
+            animation = ANIMATIONS[animation_index]
+
             if now >= next_change_time:
-                if frame_index == len(animation["frames"]) - 1:
+                if is_paused:
+                    animation_index = 0
+                    animation = ANIMATIONS[animation_index]
+                    frame_index = 0
+                    completed_repeats = 0
+                    is_paused = False
+                    next_change_time = now + animation["seconds_per_frame"]
+                    print(
+                        f"재생: {animation['name']} "
+                        f"({animation_index + 1}/{len(ANIMATIONS)})"
+                    )
+                elif frame_index == len(animation["frames"]) - 1:
                     completed_repeats += 1
                     if completed_repeats == REPEAT_COUNT:
-                        break
-                frame_index = (frame_index + 1) % len(animation["frames"])
-                next_change_time = now + animation["seconds_per_frame"]
+                        # 다섯 번째 재생의 마지막 프레임에서 정확히 1초간 멈춘다.
+                        is_paused = True
+                        next_change_time = now + PAUSE_SECONDS
+                    else:
+                        frame_index = 0
+                        next_change_time = now + animation["seconds_per_frame"]
+                else:
+                    frame_index += 1
+                    next_change_time = now + animation["seconds_per_frame"]
+
             clear_canvas()
             draw_frame(sprite_sheet, animation["frames"][frame_index])
             update_canvas()
