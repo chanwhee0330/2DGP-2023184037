@@ -106,7 +106,7 @@ def draw_frame(sprite_sheet, frame):
     sprite_sheet.clip_draw(
         left, bottom, width, height,
         CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2,
-        width, height,
+        width * DRAW_SCALE, height * DRAW_SCALE,
     )
 
 
