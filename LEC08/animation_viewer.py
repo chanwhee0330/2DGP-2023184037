@@ -125,6 +125,16 @@ def draw_frame(sprite_sheet, frame):
     )
 
 
+def handle_events():
+    """창 닫기 또는 Esc 입력이 들어오면 False를 반환한다."""
+    for event in get_events():
+        if event.type == SDL_QUIT:
+            return False
+        if event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            return False
+    return True
+
+
 def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
