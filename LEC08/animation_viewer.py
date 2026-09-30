@@ -106,9 +106,12 @@ def draw_frame(sprite_sheet, frame):
     left, bottom, width, height = frame
 
     cell_left = (left // CELL_SIZE) * CELL_SIZE
+    cell_bottom = (bottom // CELL_SIZE) * CELL_SIZE
     frame_center_x = left + width / 2
+    frame_center_y = bottom + height / 2
 
     offset_x = (frame_center_x - (cell_left + CELL_SIZE / 2)) * DRAW_SCALE
+    offset_y = (frame_center_y - (cell_bottom + CELL_SIZE / 2)) * DRAW_SCALE
 
     sprite_sheet.clip_draw(
         left,
@@ -116,7 +119,7 @@ def draw_frame(sprite_sheet, frame):
         width,
         height,
         CANVAS_WIDTH / 2 + offset_x,
-        CANVAS_HEIGHT / 2,
+        CANVAS_HEIGHT / 2 + offset_y,
         width * DRAW_SCALE,
         height * DRAW_SCALE,
     )
