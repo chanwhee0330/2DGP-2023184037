@@ -46,6 +46,23 @@ class Animation:
     frames: tuple[Frame, ...]
 
 
+@dataclass
+class PlaybackState:
+    """현재 재생 중인 동작과 프레임의 상태."""
+
+    animation_index: int = 0
+    frame_index: int = 0
+    frame_elapsed: float = 0.0
+
+    @property
+    def current_animation(self):
+        return ANIMATIONS[self.animation_index]
+
+    @property
+    def current_frame(self):
+        return self.current_animation.frames[self.frame_index]
+
+
 def top_to_pico_y(top, height):
     """이미지 상단 기준 y 좌표를 Pico2D 하단 기준 좌표로 바꾼다."""
     return SHEET_HEIGHT - (top + height)
@@ -170,6 +187,14 @@ ANIMATIONS: tuple[Animation, ...] = (
         ),
     ),
 )
+
+
+def update_playback(state, elapsed):
+    """경과한 시간만큼 현재 동작의 프레임을 진행한다."""
+    state.frame_elapsed += max(0.0, elapsed)
+    while state.frame_elapsed >= FRAME_INTERVAL:
+        state.frame_elapsed -= FRAME_INTERVAL
+        state.frame_index = (state.frame_index + 1) % len(state.current_animation.frames)
 
 
 def maximum_frame_height():
