@@ -1,6 +1,7 @@
 """Sonic 스프라이트 시트의 모든 동작을 순서대로 재생한다."""
 
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 import pico2d
@@ -8,9 +9,43 @@ import pico2d
 
 CANVAS_WIDTH = 1200
 CANVAS_HEIGHT = 800
+SHEET_WIDTH = 399
+SHEET_HEIGHT = 525
+FRAME_INTERVAL = 0.1
+REPEAT_COUNT = 5
+PAUSE_DURATION = 1.0
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 SPRITE_FILENAME = 'sonic-sprite.png'
 SPRITE_PATH = SCRIPT_DIRECTORY / SPRITE_FILENAME
+
+
+@dataclass(frozen=True)
+class Frame:
+    """스프라이트 시트에서 잘라낼 한 프레임의 정보."""
+
+    x: int
+    y: int
+    width: int
+    height: int
+    anchor_x: float | None = None
+    anchor_y: float = 0.0
+
+    @property
+    def resolved_anchor_x(self):
+        """별도 지정이 없으면 가로 중앙을 기준점으로 사용한다."""
+        return self.width / 2 if self.anchor_x is None else self.anchor_x
+
+
+@dataclass(frozen=True)
+class Animation:
+    """이름과 순서가 있는 동작별 프레임 모음."""
+
+    animation_id: str
+    name: str
+    frames: tuple[Frame, ...]
+
+
+ANIMATIONS: tuple[Animation, ...] = ()
 
 
 def load_sprite():
