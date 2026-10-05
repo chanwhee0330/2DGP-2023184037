@@ -14,6 +14,7 @@ SHEET_HEIGHT = 525
 FRAME_INTERVAL = 0.1
 REPEAT_COUNT = 5
 PAUSE_DURATION = 1.0
+MAX_SCREEN_RATIO = 0.8
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 SPRITE_FILENAME = 'sonic-sprite.png'
 SPRITE_PATH = SCRIPT_DIRECTORY / SPRITE_FILENAME
@@ -176,10 +177,21 @@ def maximum_frame_height():
     return max(frame.height for animation in ANIMATIONS for frame in animation.frames)
 
 
-def draw_frame(sprite, frame, screen_anchor_x, screen_anchor_y):
+def calculate_integer_scale():
+    """모든 프레임이 화면의 80% 안에 드는 최대 정수 배율을 구한다."""
+    frames = (frame for animation in ANIMATIONS for frame in animation.frames)
+    dimensions = tuple((frame.width, frame.height) for frame in frames)
+    maximum_width = max(width for width, _ in dimensions)
+    maximum_height = max(height for _, height in dimensions)
+    width_scale = CANVAS_WIDTH * MAX_SCREEN_RATIO / maximum_width
+    height_scale = CANVAS_HEIGHT * MAX_SCREEN_RATIO / maximum_height
+    return max(1, int(min(width_scale, height_scale)))
+
+
+def draw_frame(sprite, frame, screen_anchor_x, screen_anchor_y, scale):
     """프레임의 하단 중앙 기준점을 화면 기준점에 맞춰 그린다."""
-    center_x = screen_anchor_x + frame.width / 2 - frame.resolved_anchor_x
-    center_y = screen_anchor_y + frame.height / 2 - frame.anchor_y
+    center_x = screen_anchor_x + (frame.width / 2 - frame.resolved_anchor_x) * scale
+    center_y = screen_anchor_y + (frame.height / 2 - frame.anchor_y) * scale
     sprite.clip_draw(
         frame.x,
         frame.y,
@@ -187,6 +199,8 @@ def draw_frame(sprite, frame, screen_anchor_x, screen_anchor_y):
         frame.height,
         center_x,
         center_y,
+        frame.width * scale,
+        frame.height * scale,
     )
 
 
@@ -212,9 +226,10 @@ def main():
         pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
         canvas_opened = True
         sprite = load_sprite()
+        scale = calculate_integer_scale()
         pico2d.clear_canvas()
-        baseline_y = (CANVAS_HEIGHT - maximum_frame_height()) / 2
-        draw_frame(sprite, ANIMATIONS[0].frames[0], CANVAS_WIDTH / 2, baseline_y)
+        baseline_y = (CANVAS_HEIGHT - maximum_frame_height() * scale) / 2
+        draw_frame(sprite, ANIMATIONS[0].frames[0], CANVAS_WIDTH / 2, baseline_y, scale)
         pico2d.update_canvas()
         return 0
     except Exception as error:
