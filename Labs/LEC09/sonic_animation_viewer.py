@@ -171,8 +171,15 @@ ANIMATIONS: tuple[Animation, ...] = (
 )
 
 
-def draw_frame(sprite, frame, center_x, center_y):
-    """지정한 스프라이트 프레임 하나를 원본 크기로 그린다."""
+def maximum_frame_height():
+    """등록된 프레임 가운데 가장 큰 높이를 반환한다."""
+    return max(frame.height for animation in ANIMATIONS for frame in animation.frames)
+
+
+def draw_frame(sprite, frame, screen_anchor_x, screen_anchor_y):
+    """프레임의 하단 중앙 기준점을 화면 기준점에 맞춰 그린다."""
+    center_x = screen_anchor_x + frame.width / 2 - frame.resolved_anchor_x
+    center_y = screen_anchor_y + frame.height / 2 - frame.anchor_y
     sprite.clip_draw(
         frame.x,
         frame.y,
@@ -206,7 +213,8 @@ def main():
         canvas_opened = True
         sprite = load_sprite()
         pico2d.clear_canvas()
-        draw_frame(sprite, ANIMATIONS[0].frames[0], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+        baseline_y = (CANVAS_HEIGHT - maximum_frame_height()) / 2
+        draw_frame(sprite, ANIMATIONS[0].frames[0], CANVAS_WIDTH / 2, baseline_y)
         pico2d.update_canvas()
         return 0
     except Exception as error:
