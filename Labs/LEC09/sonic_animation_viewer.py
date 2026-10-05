@@ -45,7 +45,42 @@ class Animation:
     frames: tuple[Frame, ...]
 
 
-ANIMATIONS: tuple[Animation, ...] = ()
+def frames_from_spans(y, height, spans):
+    """같은 세로 영역에 있는 프레임들의 가로 범위를 변환한다."""
+    return tuple(
+        Frame(x=left, y=y, width=right - left + 1, height=height)
+        for left, right in spans
+    )
+
+
+ANIMATIONS: tuple[Animation, ...] = (
+    Animation(
+        'A01',
+        '대기·자세 전환',
+        frames_from_spans(
+            447,
+            39,
+            (
+                (1, 29), (31, 56), (58, 86), (87, 115), (118, 147),
+                (150, 179), (182, 210), (211, 239), (240, 268),
+                (270, 293), (302, 330),
+            ),
+        ),
+    ),
+    Animation(
+        'A02',
+        '걷기',
+        frames_from_spans(
+            407,
+            39,
+            (
+                (8, 33), (37, 63), (65, 95), (97, 133), (135, 166),
+                (170, 201), (206, 231), (238, 261), (263, 292),
+                (295, 330), (334, 365), (370, 398),
+            ),
+        ),
+    ),
+)
 
 
 def load_sprite():
