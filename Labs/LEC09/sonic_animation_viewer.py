@@ -192,9 +192,23 @@ ANIMATIONS: tuple[Animation, ...] = (
 )
 
 
+def select_next_animation(state):
+    """다음 동작을 선택하고 재생 상태를 초기화한다."""
+    state.animation_index = (state.animation_index + 1) % len(ANIMATIONS)
+    state.frame_index = 0
+    state.frame_elapsed = 0.0
+    state.loops_completed = 0
+    state.pause_elapsed = 0.0
+    state.mode = 'PLAYING'
+
+
 def update_playback(state, elapsed):
     """경과한 시간만큼 현재 동작의 프레임을 진행한다."""
     elapsed = max(0.0, elapsed)
+    if state.mode == 'NEXT':
+        select_next_animation(state)
+        return
+
     if state.mode == 'PAUSED':
         state.pause_elapsed += elapsed
         if state.pause_elapsed >= PAUSE_DURATION:
