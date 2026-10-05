@@ -267,6 +267,35 @@ def draw_frame(sprite, frame, screen_anchor_x, screen_anchor_y, scale):
     )
 
 
+def quit_requested():
+    """창 닫기 또는 Esc 키 입력 여부를 확인한다."""
+    for event in pico2d.get_events():
+        if event.type == pico2d.SDL_QUIT:
+            return True
+        if event.type == pico2d.SDL_KEYDOWN and event.key == pico2d.SDLK_ESCAPE:
+            return True
+    return False
+
+
+def run_animation_loop(sprite):
+    """종료 입력이 들어올 때까지 모든 동작을 순서대로 재생한다."""
+    state = PlaybackState()
+    scale = calculate_integer_scale()
+    screen_anchor_x = CANVAS_WIDTH / 2
+    screen_anchor_y = (CANVAS_HEIGHT - maximum_frame_height() * scale) / 2
+    previous_time = pico2d.get_time()
+
+    while not quit_requested():
+        current_time = pico2d.get_time()
+        elapsed = current_time - previous_time
+        previous_time = current_time
+        update_playback(state, elapsed)
+
+        pico2d.clear_canvas()
+        draw_frame(sprite, state.current_frame, screen_anchor_x, screen_anchor_y, scale)
+        pico2d.update_canvas()
+
+
 def load_sprite():
     """한글 경로에서도 안정적으로 스프라이트 이미지를 불러온다."""
     if not SPRITE_PATH.is_file():
@@ -289,11 +318,7 @@ def main():
         pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
         canvas_opened = True
         sprite = load_sprite()
-        scale = calculate_integer_scale()
-        pico2d.clear_canvas()
-        baseline_y = (CANVAS_HEIGHT - maximum_frame_height() * scale) / 2
-        draw_frame(sprite, ANIMATIONS[0].frames[0], CANVAS_WIDTH / 2, baseline_y, scale)
-        pico2d.update_canvas()
+        run_animation_loop(sprite)
         return 0
     except Exception as error:
         print(f'애니메이션 뷰어 실행 오류: {error}')
