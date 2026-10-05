@@ -30,10 +30,18 @@ def load_sprite():
 
 def main():
     """애니메이션 뷰어를 실행한다."""
-    pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
-    load_sprite()
-    pico2d.close_canvas()
-    return 0
+    canvas_opened = False
+    try:
+        pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+        canvas_opened = True
+        load_sprite()
+        return 0
+    except Exception as error:
+        print(f'애니메이션 뷰어 실행 오류: {error}')
+        return 1
+    finally:
+        if canvas_opened:
+            pico2d.close_canvas()
 
 
 if __name__ == '__main__':
