@@ -54,6 +54,8 @@ class PlaybackState:
     frame_index: int = 0
     frame_elapsed: float = 0.0
     loops_completed: int = 0
+    mode: str = 'PLAYING'
+    pause_elapsed: float = 0.0
 
     @property
     def current_animation(self):
@@ -192,10 +194,17 @@ ANIMATIONS: tuple[Animation, ...] = (
 
 def update_playback(state, elapsed):
     """경과한 시간만큼 현재 동작의 프레임을 진행한다."""
-    if state.loops_completed >= REPEAT_COUNT:
+    elapsed = max(0.0, elapsed)
+    if state.mode == 'PAUSED':
+        state.pause_elapsed += elapsed
+        if state.pause_elapsed >= PAUSE_DURATION:
+            state.mode = 'NEXT'
         return
 
-    state.frame_elapsed += max(0.0, elapsed)
+    if state.mode != 'PLAYING':
+        return
+
+    state.frame_elapsed += elapsed
     while state.frame_elapsed >= FRAME_INTERVAL:
         state.frame_elapsed -= FRAME_INTERVAL
         last_frame_index = len(state.current_animation.frames) - 1
@@ -206,6 +215,8 @@ def update_playback(state, elapsed):
         state.loops_completed += 1
         if state.loops_completed >= REPEAT_COUNT:
             state.frame_elapsed = 0.0
+            state.pause_elapsed = 0.0
+            state.mode = 'PAUSED'
             break
         state.frame_index = 0
 
