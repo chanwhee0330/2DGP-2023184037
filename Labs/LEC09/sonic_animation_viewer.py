@@ -1,4 +1,8 @@
-"""Sonic 스프라이트 시트의 모든 동작을 순서대로 재생한다."""
+"""Sonic 스프라이트 시트의 모든 동작을 순서대로 재생한다.
+
+실행: python sonic_animation_viewer.py
+종료: 창 닫기 또는 Esc 키
+"""
 
 import os
 from dataclasses import dataclass
@@ -15,6 +19,11 @@ FRAME_INTERVAL = 0.1
 REPEAT_COUNT = 5
 PAUSE_DURATION = 1.0
 MAX_SCREEN_RATIO = 0.8
+MODE_PLAYING = 'PLAYING'
+MODE_PAUSED = 'PAUSED'
+MODE_NEXT = 'NEXT'
+EXPECTED_FRAME_COUNTS = (11, 12, 6, 9, 6, 6, 6, 8, 8, 4)
+EXPECTED_TOTAL_FRAMES = 76
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 SPRITE_FILENAME = 'sonic-sprite.png'
 SPRITE_PATH = SCRIPT_DIRECTORY / SPRITE_FILENAME
@@ -54,7 +63,7 @@ class PlaybackState:
     frame_index: int = 0
     frame_elapsed: float = 0.0
     loops_completed: int = 0
-    mode: str = 'PLAYING'
+    mode: str = MODE_PLAYING
     pause_elapsed: float = 0.0
 
     @property
@@ -194,13 +203,12 @@ ANIMATIONS: tuple[Animation, ...] = (
 
 def validate_animations():
     """PRD에 정의된 동작 수, 프레임 수와 좌표 경계를 검사한다."""
-    expected_counts = (11, 12, 6, 9, 6, 6, 6, 8, 8, 4)
-    if len(ANIMATIONS) != len(expected_counts):
+    if len(ANIMATIONS) != len(EXPECTED_FRAME_COUNTS):
         raise ValueError(f'동작 수가 올바르지 않습니다: {len(ANIMATIONS)}')
 
     total_frames = 0
     for index, (animation, expected_count) in enumerate(
-        zip(ANIMATIONS, expected_counts),
+        zip(ANIMATIONS, EXPECTED_FRAME_COUNTS),
         start=1,
     ):
         expected_id = f'A{index:02d}'
@@ -224,7 +232,7 @@ def validate_animations():
             ):
                 raise ValueError(f'{animation.animation_id} 프레임이 이미지 경계를 벗어납니다.')
 
-    if total_frames != 76:
+    if total_frames != EXPECTED_TOTAL_FRAMES:
         raise ValueError(f'전체 프레임 수가 올바르지 않습니다: {total_frames}')
 
 
@@ -235,23 +243,23 @@ def select_next_animation(state):
     state.frame_elapsed = 0.0
     state.loops_completed = 0
     state.pause_elapsed = 0.0
-    state.mode = 'PLAYING'
+    state.mode = MODE_PLAYING
 
 
 def update_playback(state, elapsed):
     """경과한 시간만큼 현재 동작의 프레임을 진행한다."""
     elapsed = max(0.0, elapsed)
-    if state.mode == 'NEXT':
+    if state.mode == MODE_NEXT:
         select_next_animation(state)
         return
 
-    if state.mode == 'PAUSED':
+    if state.mode == MODE_PAUSED:
         state.pause_elapsed += elapsed
         if state.pause_elapsed >= PAUSE_DURATION:
-            state.mode = 'NEXT'
+            state.mode = MODE_NEXT
         return
 
-    if state.mode != 'PLAYING':
+    if state.mode != MODE_PLAYING:
         return
 
     state.frame_elapsed += elapsed
@@ -266,7 +274,7 @@ def update_playback(state, elapsed):
         if state.loops_completed >= REPEAT_COUNT:
             state.frame_elapsed = 0.0
             state.pause_elapsed = 0.0
-            state.mode = 'PAUSED'
+            state.mode = MODE_PAUSED
             break
         state.frame_index = 0
 
@@ -341,6 +349,8 @@ def load_sprite():
     try:
         os.chdir(SCRIPT_DIRECTORY)
         return pico2d.load_image(SPRITE_FILENAME)
+    except KeyboardInterrupt:
+        return 0
     except Exception as error:
         raise RuntimeError(f'스프라이트 이미지를 불러오지 못했습니다: {error}') from error
     finally:
