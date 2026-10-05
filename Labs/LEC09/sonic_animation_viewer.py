@@ -45,8 +45,15 @@ class Animation:
     frames: tuple[Frame, ...]
 
 
-def frames_from_spans(y, height, spans):
-    """같은 세로 영역에 있는 프레임들의 가로 범위를 변환한다."""
+def top_to_pico_y(top, height):
+    """이미지 상단 기준 y 좌표를 Pico2D 하단 기준 좌표로 바꾼다."""
+    return SHEET_HEIGHT - (top + height)
+
+
+def frames_from_top_spans(top, bottom, spans):
+    """상단 기준 행 범위와 가로 범위를 Pico2D 프레임으로 변환한다."""
+    height = bottom - top + 1
+    y = top_to_pico_y(top, height)
     return tuple(
         Frame(x=left, y=y, width=right - left + 1, height=height)
         for left, right in spans
@@ -57,9 +64,9 @@ ANIMATIONS: tuple[Animation, ...] = (
     Animation(
         'A01',
         '대기·자세 전환',
-        frames_from_spans(
-            447,
+        frames_from_top_spans(
             39,
+            77,
             (
                 (1, 29), (31, 56), (58, 86), (87, 115), (118, 147),
                 (150, 179), (182, 210), (211, 239), (240, 268),
@@ -70,9 +77,9 @@ ANIMATIONS: tuple[Animation, ...] = (
     Animation(
         'A02',
         '걷기',
-        frames_from_spans(
-            407,
-            39,
+        frames_from_top_spans(
+            79,
+            117,
             (
                 (8, 33), (37, 63), (65, 95), (97, 133), (135, 166),
                 (170, 201), (206, 231), (238, 261), (263, 292),
@@ -83,18 +90,18 @@ ANIMATIONS: tuple[Animation, ...] = (
     Animation(
         'A03',
         '대시·공격 동작',
-        frames_from_spans(
-            361,
-            43,
+        frames_from_top_spans(
+            121,
+            163,
             ((1, 33), (39, 73), (89, 123), (130, 163), (181, 214), (228, 260)),
         ),
     ),
     Animation(
         'A04',
         '회전 전환',
-        frames_from_spans(
-            325,
-            33,
+        frames_from_top_spans(
+            167,
+            199,
             (
                 (1, 29), (35, 63), (67, 96), (98, 128), (131, 159),
                 (162, 190), (193, 222), (230, 260), (268, 297),
@@ -104,36 +111,36 @@ ANIMATIONS: tuple[Animation, ...] = (
     Animation(
         'A05',
         '공 회전',
-        frames_from_spans(
-            292,
-            27,
+        frames_from_top_spans(
+            206,
+            232,
             ((1, 30), (36, 64), (70, 98), (105, 133), (139, 167), (174, 202)),
         ),
     ),
     Animation(
         'A06',
         '고속 달리기 A',
-        frames_from_spans(
-            251,
-            36,
+        frames_from_top_spans(
+            238,
+            273,
             ((1, 29), (36, 65), (74, 104), (111, 141), (149, 178), (186, 216)),
         ),
     ),
     Animation(
         'A07',
         '고속 달리기 B',
-        frames_from_spans(
-            207,
-            35,
+        frames_from_top_spans(
+            283,
+            317,
             ((1, 29), (36, 65), (72, 110), (123, 161), (172, 210), (218, 255)),
         ),
     ),
     Animation(
         'A08',
         '방향 전환·피격 동작',
-        frames_from_spans(
-            154,
-            45,
+        frames_from_top_spans(
+            326,
+            370,
             (
                 (1, 24), (31, 59), (65, 84), (90, 114),
                 (119, 143), (149, 168), (184, 223), (232, 270),
@@ -143,9 +150,9 @@ ANIMATIONS: tuple[Animation, ...] = (
     Animation(
         'A09',
         '달리기 순환',
-        frames_from_spans(
-            108,
-            40,
+        frames_from_top_spans(
+            377,
+            416,
             (
                 (1, 27), (31, 61), (64, 94), (99, 131),
                 (136, 167), (176, 208), (217, 249), (254, 286),
@@ -155,9 +162,25 @@ ANIMATIONS: tuple[Animation, ...] = (
     Animation(
         'A10',
         '세리머니·제스처',
-        frames_from_spans(56, 43, ((6, 39), (49, 82), (96, 118), (125, 147))),
+        frames_from_top_spans(
+            426,
+            468,
+            ((6, 39), (49, 82), (96, 118), (125, 147)),
+        ),
     ),
 )
+
+
+def draw_frame(sprite, frame, center_x, center_y):
+    """지정한 스프라이트 프레임 하나를 원본 크기로 그린다."""
+    sprite.clip_draw(
+        frame.x,
+        frame.y,
+        frame.width,
+        frame.height,
+        center_x,
+        center_y,
+    )
 
 
 def load_sprite():
@@ -181,7 +204,10 @@ def main():
     try:
         pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
         canvas_opened = True
-        load_sprite()
+        sprite = load_sprite()
+        pico2d.clear_canvas()
+        draw_frame(sprite, ANIMATIONS[0].frames[0], CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+        pico2d.update_canvas()
         return 0
     except Exception as error:
         print(f'애니메이션 뷰어 실행 오류: {error}')
