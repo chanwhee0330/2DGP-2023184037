@@ -18,7 +18,7 @@ SHEET_HEIGHT = 525
 FRAME_INTERVAL = 0.1
 REPEAT_COUNT = 5
 PAUSE_DURATION = 1.0
-MAX_SCREEN_RATIO = 0.8
+MAX_SCREEN_RATIO = 0.4
 MODE_PLAYING = 'PLAYING'
 MODE_PAUSED = 'PAUSED'
 MODE_NEXT = 'NEXT'
@@ -285,7 +285,7 @@ def maximum_frame_height():
 
 
 def calculate_integer_scale():
-    """모든 프레임이 화면의 80% 안에 드는 최대 정수 배율을 구한다."""
+    """모든 프레임이 화면의 40% 안에 드는 최대 정수 배율을 구한다."""
     frames = (frame for animation in ANIMATIONS for frame in animation.frames)
     dimensions = tuple((frame.width, frame.height) for frame in frames)
     maximum_width = max(width for width, _ in dimensions)
