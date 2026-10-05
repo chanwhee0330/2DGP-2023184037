@@ -192,6 +192,42 @@ ANIMATIONS: tuple[Animation, ...] = (
 )
 
 
+def validate_animations():
+    """PRD에 정의된 동작 수, 프레임 수와 좌표 경계를 검사한다."""
+    expected_counts = (11, 12, 6, 9, 6, 6, 6, 8, 8, 4)
+    if len(ANIMATIONS) != len(expected_counts):
+        raise ValueError(f'동작 수가 올바르지 않습니다: {len(ANIMATIONS)}')
+
+    total_frames = 0
+    for index, (animation, expected_count) in enumerate(
+        zip(ANIMATIONS, expected_counts),
+        start=1,
+    ):
+        expected_id = f'A{index:02d}'
+        if animation.animation_id != expected_id:
+            raise ValueError(f'동작 ID 순서가 올바르지 않습니다: {animation.animation_id}')
+        if len(animation.frames) != expected_count:
+            raise ValueError(
+                f'{animation.animation_id} 프레임 수 오류: '
+                f'{len(animation.frames)}개, 예상 {expected_count}개'
+            )
+
+        total_frames += len(animation.frames)
+        for frame in animation.frames:
+            if frame.width <= 0 or frame.height <= 0:
+                raise ValueError(f'{animation.animation_id}에 크기가 0 이하인 프레임이 있습니다.')
+            if (
+                frame.x < 0
+                or frame.y < 0
+                or frame.x + frame.width > SHEET_WIDTH
+                or frame.y + frame.height > SHEET_HEIGHT
+            ):
+                raise ValueError(f'{animation.animation_id} 프레임이 이미지 경계를 벗어납니다.')
+
+    if total_frames != 76:
+        raise ValueError(f'전체 프레임 수가 올바르지 않습니다: {total_frames}')
+
+
 def select_next_animation(state):
     """다음 동작을 선택하고 재생 상태를 초기화한다."""
     state.animation_index = (state.animation_index + 1) % len(ANIMATIONS)
@@ -315,6 +351,7 @@ def main():
     """애니메이션 뷰어를 실행한다."""
     canvas_opened = False
     try:
+        validate_animations()
         pico2d.open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
         canvas_opened = True
         sprite = load_sprite()
