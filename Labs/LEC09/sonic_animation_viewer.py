@@ -53,6 +53,7 @@ class Animation:
     animation_id: str
     name: str
     frames: tuple[Frame, ...]
+    movement_speed: float = 0.0
 
 
 @dataclass
@@ -65,6 +66,7 @@ class PlaybackState:
     loops_completed: int = 0
     mode: str = MODE_PLAYING
     pause_elapsed: float = 0.0
+    screen_x: float = CANVAS_WIDTH / 2
 
     @property
     def current_animation(self):
@@ -116,6 +118,7 @@ ANIMATIONS: tuple[Animation, ...] = (
                 (295, 330), (334, 365), (370, 398),
             ),
         ),
+        movement_speed=60.0,
     ),
     Animation(
         'A03',
@@ -125,6 +128,7 @@ ANIMATIONS: tuple[Animation, ...] = (
             163,
             ((1, 33), (39, 73), (89, 123), (130, 163), (181, 214), (228, 260)),
         ),
+        movement_speed=180.0,
     ),
     Animation(
         'A04',
@@ -146,6 +150,7 @@ ANIMATIONS: tuple[Animation, ...] = (
             232,
             ((1, 30), (36, 64), (70, 98), (105, 133), (139, 167), (174, 202)),
         ),
+        movement_speed=150.0,
     ),
     Animation(
         'A06',
@@ -155,6 +160,7 @@ ANIMATIONS: tuple[Animation, ...] = (
             273,
             ((1, 29), (36, 65), (74, 104), (111, 141), (149, 178), (186, 216)),
         ),
+        movement_speed=130.0,
     ),
     Animation(
         'A07',
@@ -164,6 +170,7 @@ ANIMATIONS: tuple[Animation, ...] = (
             317,
             ((1, 29), (36, 65), (72, 110), (123, 161), (172, 210), (218, 255)),
         ),
+        movement_speed=150.0,
     ),
     Animation(
         'A08',
@@ -188,6 +195,7 @@ ANIMATIONS: tuple[Animation, ...] = (
                 (136, 167), (176, 208), (217, 249), (254, 286),
             ),
         ),
+        movement_speed=115.0,
     ),
     Animation(
         'A10',
@@ -246,7 +254,7 @@ def select_next_animation(state):
     state.mode = MODE_PLAYING
 
 
-def update_playback(state, elapsed):
+def update_playback(state, elapsed, movement_bounds):
     """경과한 시간만큼 현재 동작의 프레임을 진행한다."""
     elapsed = max(0.0, elapsed)
     if state.mode == MODE_NEXT:
@@ -261,6 +269,15 @@ def update_playback(state, elapsed):
 
     if state.mode != MODE_PLAYING:
         return
+
+    movement_speed = state.current_animation.movement_speed
+    if movement_speed > 0.0:
+        left_bound, right_bound = movement_bounds
+        travel_width = right_bound - left_bound
+        if travel_width > 0:
+            state.screen_x += movement_speed * elapsed
+            if state.screen_x > right_bound:
+                state.screen_x = left_bound + (state.screen_x - right_bound) % travel_width
 
     state.frame_elapsed += elapsed
     while state.frame_elapsed >= FRAME_INTERVAL:
@@ -325,7 +342,11 @@ def run_animation_loop(sprite):
     """종료 입력이 들어올 때까지 모든 동작을 순서대로 재생한다."""
     state = PlaybackState()
     scale = calculate_integer_scale()
-    screen_anchor_x = CANVAS_WIDTH / 2
+    widest_frame = max(
+        frame.width for animation in ANIMATIONS for frame in animation.frames
+    )
+    horizontal_margin = widest_frame * scale / 2
+    movement_bounds = (horizontal_margin, CANVAS_WIDTH - horizontal_margin)
     screen_anchor_y = (CANVAS_HEIGHT - maximum_frame_height() * scale) / 2
     previous_time = pico2d.get_time()
 
@@ -333,10 +354,10 @@ def run_animation_loop(sprite):
         current_time = pico2d.get_time()
         elapsed = current_time - previous_time
         previous_time = current_time
-        update_playback(state, elapsed)
+        update_playback(state, elapsed, movement_bounds)
 
         pico2d.clear_canvas()
-        draw_frame(sprite, state.current_frame, screen_anchor_x, screen_anchor_y, scale)
+        draw_frame(sprite, state.current_frame, state.screen_x, screen_anchor_y, scale)
         pico2d.update_canvas()
 
 
