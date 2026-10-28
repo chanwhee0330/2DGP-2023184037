@@ -42,7 +42,7 @@ class Boy:
         )
         self.state_machine.add_transition(
             trigger='start_running',
-            source='idle',
+            source=['idle', 'sleep'],
             dest='run',
         )
         self.state_machine.add_transition(
@@ -70,9 +70,11 @@ class Boy:
 
     def handle_event(self, event):
         if self.state == 'sleep':
-            if event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            if event.type != SDL_KEYDOWN:
+                return
+            if event.key == SDLK_SPACE:
                 self.wake_up()
-            return
+                return
 
         if event.type not in (SDL_KEYDOWN, SDL_KEYUP):
             return
@@ -88,7 +90,7 @@ class Boy:
                          - int(SDLK_LEFT in self.pressed_keys))
         if self.move_dir != 0:
             self.face_dir = self.move_dir
-            if self.state == 'idle':
+            if self.state in ('idle', 'sleep'):
                 self.start_running()
         elif self.state == 'run':
             self.stop_running()
