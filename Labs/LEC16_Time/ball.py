@@ -33,7 +33,9 @@ class Ball:
             - 0.5 * GRAVITY * delta_time ** 2
         )
         self.velocity_y -= GRAVITY * delta_time
-        if self.x < 0 or self.x > get_canvas_width():
+        if (self.x < -self.radius or
+                self.x > get_canvas_width() + self.radius or
+                self.y - self.radius <= GROUND_Y):
             game_world.remove_object(self)
 
     def draw(self):
