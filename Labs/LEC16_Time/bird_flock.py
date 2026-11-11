@@ -1,10 +1,13 @@
 """bird_animation.png의 비행 프레임으로 새 열 마리를 그린다."""
 from pico2d import load_image
 
+import game_framework
+
 
 FRAME_COLUMNS = 5
 FRAME_ROWS = 3
 FRAME_COUNT = 14
+ANIMATION_FPS = 14.0
 BIRD_WIDTH = 64
 BIRD_HEIGHT = 56
 
@@ -14,6 +17,7 @@ class BirdFlock:
         self.image = load_image('bird_animation.png')
         self.x = 800.0
         self.y = 420.0
+        self.animation_time = 0.0
         self.offsets = [
             (0, 0),
             (-55, -34), (-55, 34),
@@ -22,14 +26,20 @@ class BirdFlock:
             (-220, -136), (-220, 136),
             (-275, 0),
         ]
+        self.phases = [
+            index * FRAME_COUNT / len(self.offsets)
+            for index in range(len(self.offsets))
+        ]
 
     def update(self):
-        pass
+        self.animation_time = (
+            self.animation_time + game_framework.frame_time
+        ) % (FRAME_COUNT / ANIMATION_FPS)
 
     def draw(self):
         sheet_width, sheet_height = self.image.w, self.image.h
-        for index, (offset_x, offset_y) in enumerate(self.offsets):
-            frame = index % FRAME_COUNT
+        for (offset_x, offset_y), phase in zip(self.offsets, self.phases):
+            frame = int(self.animation_time * ANIMATION_FPS + phase) % FRAME_COUNT
             row, column = divmod(frame, FRAME_COLUMNS)
             left = column * sheet_width // FRAME_COLUMNS
             right = (column + 1) * sheet_width // FRAME_COLUMNS
