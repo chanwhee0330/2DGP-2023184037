@@ -26,7 +26,8 @@ class Ball:
         self.radius = 10.5 if ball_type == 1 else 20.5
 
     def update(self):
-        self.x += self.velocity
+        delta_time = game_framework.frame_time
+        self.x += self.velocity_x * delta_time
         if self.x < 0 or self.x > get_canvas_width():
             game_world.remove_object(self)
 
