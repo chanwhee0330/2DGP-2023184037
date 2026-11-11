@@ -28,6 +28,11 @@ class Ball:
     def update(self):
         delta_time = game_framework.frame_time
         self.x += self.velocity_x * delta_time
+        self.y += (
+            self.velocity_y * delta_time
+            - 0.5 * GRAVITY * delta_time ** 2
+        )
+        self.velocity_y -= GRAVITY * delta_time
         if self.x < 0 or self.x > get_canvas_width():
             game_world.remove_object(self)
 
