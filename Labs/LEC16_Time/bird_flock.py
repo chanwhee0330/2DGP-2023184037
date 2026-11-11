@@ -45,13 +45,15 @@ class BirdFlock:
         ) % (FRAME_COUNT / ANIMATION_FPS)
 
         span = self.max_x - self.min_x
-        travel = self.x - self.min_x + self.direction * FLOCK_SPEED * delta_time
-        position = travel % (2 * span)
-        if position < span:
-            self.x = self.min_x + position
+        travel = self.x - self.min_x
+        if self.direction < 0:
+            travel = 2 * span - travel
+        travel = (travel + FLOCK_SPEED * delta_time) % (2 * span)
+        if travel < span:
+            self.x = self.min_x + travel
             self.direction = 1
         else:
-            self.x = self.max_x - (position - span)
+            self.x = self.max_x - (travel - span)
             self.direction = -1
 
     def draw(self):
